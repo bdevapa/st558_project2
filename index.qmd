@@ -1,7 +1,50 @@
 ---
-title: "index"
+title: "Bank Marketing: Exploratory Data Analysis"
 format: html
 editor: visual
+author: "Bhanuprakash Devapatla"
 ---
 
 # Overall Goal
+
+Explore the bank marketing data in a static way before building the Shiny app.
+The data comes from a Portuguese bank where each row is one client and `y` corresponds to whether the client subscribed to a term deposit.
+I want to explore which client traits (such as age, job, and education) and campaign details (such as call duration and number of times contacted) are associated with in a client subscribing.
+I will use contingency tables, numerical summaries, and plots to explore the data. The idea is to find patterns in this exercise before building them into the interactive app
+
+## Setup
+
+```{r}
+library(dplyr)
+library(readr)
+library(ggplot2)
+
+```
+
+## Read the data
+
+```{r}
+train <- read_delim("data/train.csv", delim = ";")
+test <- read_delim("data/test.csv", delim = ";")
+nrow(train)
+nrow(test)
+```
+
+Per project instructions combine the training and testing rows.
+
+```{r}
+bank_all <- bind_rows(train, test)
+nrow(bank_all)
+
+```
+
+Because we are combining the data, it is a good idea to check if there are any duplicates. Also Kaggle specifically mentions this 
+"test.csv: 4521 rows and 18 columns with 10% of the examples (4521), randomly selected from train.csv"
+
+Let's remove the duplicates 
+```{r}
+bank_all <- distinct(bank_all)
+nrow(bank_all)
+```
+
+Now we are back to 45211 rows so the stacking training and test was never needed, also we confirmed above from Kaggle.
