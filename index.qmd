@@ -154,4 +154,84 @@ bank |> count(education, y)
 bank |> count(marital, y)
 ```
 
-In aboslute numbers married people have the highest subscription numbers, however there were also more married people in the data 
+In absolute numbers married people have the highest subscription numbers, however there were also more married people in the data.
+
+
+## Numerical summaries 
+
+Numerical summaries (means, medians, sds, etc.) for quantitative variables at levels of categorical variables
+
+### balance by y 
+
+```{r}
+bank |> 
+  group_by(y) |>
+  summarize(
+    n = n(),
+    mean_balance = mean(balance),
+    meedian_balance = median(balance),
+    sd_balance = sd(balance)
+  )
+
+
+```
+
+### Multiple numeric variables by y 
+
+```{r}
+bank |> 
+  group_by(y) |>
+  summarize(
+    n(),
+    across(c(age, duration, campaign),
+    list(mean = mean, median = median, sd = sd)
+  ))
+
+
+```
+
+### Multiple numeric variables by multiple categorical variables
+
+```{r}
+bank |> 
+  group_by(education, y) |>
+  summarize(
+    n(),
+    across(c(age, duration, campaign),
+    list(mean = mean, median = median, sd = sd)),
+    .groups = "drop"
+    )
+
+
+```
+## Let's create plots now
+
+Simple bar chart - with the outcome 
+
+```{r}
+ggplot(bank, aes(x = y)) + 
+  geom_bar() + 
+  labs(title = "Number of Clients by Term Deposit Subscription",
+       x = "Subscribed to a Term Deposit",
+       y = "Number of Clients")
+```
+
+Now let's plot number of clients by job 
+
+```{r}
+ggplot(bank, aes(x = job)) +
+  geom_bar() + 
+  coord_flip() + 
+  labs(
+    title = "Number of clients by job",
+    x = "Job",
+    y = "Number of Clients"
+  )
+
+```
+
+## education vs y 
+
+```{r}
+
+```
