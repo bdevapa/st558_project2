@@ -6,7 +6,7 @@ The data comes from [Banking Dataset - Marketing Targets](https://www.kaggle.com
 
 **Client Traits (column names in the data set):**
 
-bank client data:
+## bank client data:
 
 1. age (numeric)
 1. job : type of job (categorical: "admin.","unknown","unemployed","management","housemaid","entrepreneur","student","blue-collar","self-employed","retired","technician","services")
@@ -16,12 +16,12 @@ bank client data:
 1. balance: average yearly balance, in euros (numeric)
 1. housing: has housing loan? (binary: "yes","no")
 1. loan: has personal loan? (binary: "yes","no")
-# related with the last contact of the current campaign:
+## related with the last contact of the current campaign:
 1. contact: contact communication type (categorical: "unknown","telephone","cellular")
 1. day: last contact day of the month (numeric)
 1. month: last contact month of year (categorical: "jan", "feb", "mar", …, "nov", "dec")
 1. duration: last contact duration, in seconds (numeric)
-# other attributes:
+## other attributes:
 1. campaign: number of contacts performed during this campaign and for this client (numeric, includes last contact)
 1. pdays: number of days that passed by after the client was last contacted from a previous campaign (numeric, -1. means client was not previously contacted)
 1. previous: number of contacts performed before this campaign and for this client (numeric)
