@@ -7,7 +7,7 @@ author: "Bhanuprakash Devapatla"
 
 # Overall Goal
 
-Explore the bank marketing data in a static way before building the Shiny app. The data comes from a Portuguese bank where each row is one client and `y` corresponds to whether the client subscribed to a term deposit. I want to explore which client traits (such as age, job, and education) and campaign details (such as call duration and number of times contacted) are associated with in a client subscribing. I will use contingency tables, numerical summaries, and plots to explore the data. The idea is to find patterns in this exercise before building them into the interactive app
+Explore the bank marketing data in a static way before building the Shiny app. The data comes from a Portuguese bank where each row is one client and `y` corresponds to whether the client subscribed to a term deposit. I want to explore which client traits (such as age, job, and education) and campaign details (such as call duration and number of times contacted) are associated with a client subscribing. I will use contingency tables, numerical summaries, and plots to explore the data. The idea is to find patterns in this exercise before building them into the interactive app
 
 ## Setup
 
@@ -72,7 +72,7 @@ colSums(bank == -1)
 
 ```
 
-It turns out both balance and pdays have "-1" as the value, but balance = -1 might genuinely indicate negative bank balance of the customers (normalized) 
+It turns out both balance and pdays have "-1" as the value, but balance = -1 might genuinely indicate negative bank balance of the customers 
 For now let's think pdays has -1 which means the client was not contacted before 
 
 I think this is a good place to standardize what is a numerical column vs categorical column and even save those details into variables
@@ -87,7 +87,7 @@ cat_vars
 
 ## Contingency tables 
 
-I want create contingency variables for some of categorial variables in the data. I will start with output variable first 
+I want to create contingency variables for some of categorical variables in the data. I will start with output variable first 
 
 ```{r}
 
@@ -97,7 +97,7 @@ table(bank$y)
 
 This helps only 5289 clients subscribed to term deposits out of 45211 that were reached out to.
 
-Now lets do few other one-way contigency tables to see if we can learn some more information on the data. Let's actually do them `dplyr` way
+Now lets do few other one-way contingency tables to see if we can learn some more information on the data. Let's actually do them `dplyr` way
 
 ```{r}
 bank |> count(marital)
@@ -144,7 +144,7 @@ bank |>
 
 So there does seem like the clients who were contacted on the 1st day of the month had higher rate of subscribing. However the numbers of calls on day-1 are far less compared to other days such as a day with 2560 total calls. So the check to see which day had the highest conversion rate is less reliable 
 
-Now, let's do a few more two-way contigency tables
+Now, let's do a few more two-way contingency tables
 
 ```{r}
 bank |> count(education, y)
@@ -169,7 +169,7 @@ bank |>
   summarize(
     n = n(),
     mean_balance = mean(balance),
-    meedian_balance = median(balance),
+    median_balance = median(balance),
     sd_balance = sd(balance)
   )
 
@@ -215,6 +215,7 @@ ggplot(bank, aes(x = y)) +
        x = "Subscribed to a Term Deposit",
        y = "Number of Clients")
 ```
+Most clients did not subscribe.The no bar is much taller than yes bar. This matches with the `table(bank$y)` output above (5289 yes).
 
 Now let's plot number of clients by job 
 
@@ -229,9 +230,73 @@ ggplot(bank, aes(x = job)) +
   )
 
 ```
+Blue-collar, management and technician have the tallest bars, so these are the most common jobs. Student and unknown have the shortest bars. From the `count(job)` table,, only 288 clients have unknown job and it is the smallest bar in the above plot.
 
-## education vs y 
+
+### education vs y 
 
 ```{r}
-
+ggplot(bank, aes(x = education, fill = y)) + 
+  geom_bar(position = "fill") + 
+  labs(
+    title = "Proportion of Clients Subscribing by Education Level",
+    x = "Education",
+    y = "Proportion of Clients",
+    fill = "Subscribed"
+  )
 ```
+
+The yes part of the bar gets bigger as education goes from primary to secondary to teritary, so more educated clients subscribed at a higher rate. 
+
+> per [this page](https://ggplot2-book.org/getting-started.html#sec-qplot-faceting) Faceting creates tables of graphics by splitting the data into subsets and displaying the same graph for each subset.
+
+### 
+
+```{r}
+ggplot(bank, aes(x = age)) + 
+  geom_histogram(binwidth = 5) + 
+  facet_wrap(~y, scales = "free_y") +
+  labs(
+    title = "Age distribution by Term Deposit Subscription",
+    x = "Age",
+    y = "Number of Clients"
+  )
+```
+Both groups have most clients between 25 and 50 years old. The main difference is after age 60, the no panel drops to almost nothing but the yes panel still has clients after 75, so older clients make up a bigger share of people who subscribed. Since y-axis is different `scales= "free_y"` I am only comparing the x-axis
+
+### box plot of duration by poutcome 
+
+
+```{r}
+ggplot(bank, aes(x = poutcome, y = duration/60, fill = y)) + 
+  geom_boxplot() + 
+  coord_flip() + 
+  labs(
+    title = "Call duration by previous compaign outcome and subscription",
+    x = "Previoud compaign outcome",
+    y = "Last Call duration (in mins)",
+    fill = "Subscribed"
+  )
+```
+When the client subscribed the median last call duration was longer. 
+
+
+### Heatmap of subscription rate by education and marital status 
+
+This is a heatmap made with geom_tile(), a plot type that was not covered in the class. 
+
+```{r}
+bank |>
+  group_by(education, marital) |>
+  summarize(rate = mean(y == "yes"), .groups = "drop") |>
+  ggplot(aes(x=marital, y = education, fill = rate)) + 
+  geom_tile() + 
+  labs(
+    title = "Subscription Rate by Education and Marital Status",
+    x = "Marital Status",
+    y = "Education",
+    fill = "Subscription Rate"
+  )
+```
+
+Single clients with teritary education had the highest subscription rate and married clients with primary education had the lowest. In almost every education level married clients had the lowest rate of subscription. 
