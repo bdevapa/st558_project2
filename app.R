@@ -4,6 +4,7 @@ library(tidyverse)
 library(dplyr)
 library(readr)
 library(ggplot2)
+library(DT)
 
 # read and combine the ban data once, when the app starts 
 
@@ -38,20 +39,43 @@ ui <- fluidPage(
       br(),
       textOutput("n_rows")
     ),
-    mainPanel(
-      tabsetPanel(
-        id = "tabs",
-        tabPanel("About",
-          p("About tab goes here")
-        ),
-        tabPanel("Data Download",
-                 p("Data Download tab goes here")
-        ),
-        tabPanel("Data Exploration",
-                 p("Data Exploration tab goes here")
+    mainPanel(tabsetPanel(
+      id = "tabs",
+      tabPanel("About", fluidRow(
+        column(
+          8,
+          h3("About this app"),
+          p(
+            "This app let's you uexplore the data from a Portuguese bank's phone marketing campaigns."
+          ),
+          p(
+            "Data:",
+            a("Banking Dataset - Marketing Targets (Kaggle)", href = "https://www.kaggle.com/datasets/prakharrathi25/banking-dataset-marketing-targets")
+          ),
+          tags$ul(
+            tags$li(strong("Sidebar:"), "pick a subset, then click 'Subset the data'."),
+            tags$li(
+              strong("Data Download:"),
+              "view and download the subset as a csv file."
+            ),
+            tags$li(
+              strong("Data Exploration:"),
+              "tables, summaries and plots of the subset."
+            )
+          )
+        ), column(
+          4,
+          img(src = "bank.jpeg", class = "img-responsive", alt = "Picture of a bank")
         )
-      )
-    )
+      )),
+      tabPanel("Data Download",
+               downloadButton("download_data", "Download data as .csv"),
+               br(),
+               br(),
+               DT::dataTableOutput("data_table")
+               ),
+      tabPanel("Data Exploration", p("Data Exploration tab goes here"))
+    ))
   )
 )
 
@@ -133,6 +157,23 @@ server <- function(input, output, session) {
     paste("Rows in the current data:", nrow(bank_subset$data))
     
   })
+  
+  output$data_table <- DT::renderDataTable({
+    validate(
+      need(!is.null(bank_subset$data), "Make your selections and click the 'Subset the data' button.")
+    )
+    bank_subset$data
+  })
+  
+  output$download_data <- downloadHandler(
+    filename = function() {
+      paste0("bank-subset-",Sys.Date(), '.csv')
+    },
+    content = function(con) {
+      write.csv(bank_subset$data,con)
+    }
+  )
+  
 }
 
 # Run the application 
