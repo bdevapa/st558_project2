@@ -36,8 +36,7 @@ nrow(bank_all)
 
 ```
 
-Because we are combining the data, it is a good idea to check if there are any duplicates. Also Kaggle specifically mentions this 
-> test.csv: 4521 rows and 18 columns with 10% of the examples (4521), randomly selected from train.csv
+Because we are combining the data, it is a good idea to check if there are any duplicates. Also Kaggle specifically mentions this \> test.csv: 4521 rows and 18 columns with 10% of the examples (4521), randomly selected from train.csv
 
 Let's remove the duplicates
 
@@ -48,16 +47,15 @@ nrow(bank)
 
 Now we are back to 45211 rows so the stacking training and test was never needed, also we confirmed above from Kaggle.
 
-## Check for missing values in the data 
+## Check for missing values in the data
 
 ```{r}
 colSums(is.na(bank))
 ```
 
-This means there are no columns with NA values. 
+This means there are no columns with NA values.
 
-Also reading from Kaggle page, the database contain "unknown" as value.
-Let's check on all the columns with "unknown" as the value 
+Also reading from Kaggle page, the database contain "unknown" as value. Let's check on all the columns with "unknown" as the value
 
 ```{r}
 colSums(bank == "unknown")
@@ -72,8 +70,7 @@ colSums(bank == -1)
 
 ```
 
-It turns out both balance and pdays have "-1" as the value, but balance = -1 might genuinely indicate negative bank balance of the customers 
-For now let's think pdays has -1 which means the client was not contacted before 
+It turns out both balance and pdays have "-1" as the value, but balance = -1 might genuinely indicate negative bank balance of the customers For now let's think pdays has -1 which means the client was not contacted before
 
 I think this is a good place to standardize what is a numerical column vs categorical column and even save those details into variables
 
@@ -85,9 +82,9 @@ num_vars
 cat_vars
 ```
 
-## Contingency tables 
+## Contingency tables
 
-I want to create contingency variables for some of categorical variables in the data. I will start with output variable first 
+I want to create contingency variables for some of categorical variables in the data. I will start with output variable first
 
 ```{r}
 
@@ -102,7 +99,9 @@ Now lets do few other one-way contingency tables to see if we can learn some mor
 ```{r}
 bank |> count(marital)
 ```
-Now let's count the job 
+
+Now let's count the job
+
 ```{r}
 bank |> count(job)
 ```
@@ -113,6 +112,7 @@ Next I check `poutcome`, the outcome of the previous marketing campaign for each
 bank |> count(poutcome)
 
 ```
+
 1511 clients had a successful previous campaign, meaning they had already subscribed once and were contacted again in this campaign. Each row is still one client. `poutcome` describes the client's history, not a separate record. Most clients 36959 are unknown, which mostly means they were never contacted before. A natural question is whether past subscribers said yes again. We can answer this with two-way contingency table.
 
 ```{r}
@@ -130,7 +130,7 @@ bank |> count(day,y)
 
 ```
 
-Its hard to read - let's pivot_wider so we can compare the yes and no data side by side 
+Its hard to read - let's pivot_wider so we can compare the yes and no data side by side
 
 ```{r}
 bank |> 
@@ -142,7 +142,7 @@ bank |>
   #arrange(desc(total))
 ```
 
-So there does seem like the clients who were contacted on the 1st day of the month had higher rate of subscribing. However the numbers of calls on day-1 are far less compared to other days such as a day with 2560 total calls. So the check to see which day had the highest conversion rate is less reliable 
+So there does seem like the clients who were contacted on the 1st day of the month had higher rate of subscribing. However the numbers of calls on day-1 are far less compared to other days such as a day with 2560 total calls. So the check to see which day had the highest conversion rate is less reliable
 
 Now, let's do a few more two-way contingency tables
 
@@ -150,18 +150,18 @@ Now, let's do a few more two-way contingency tables
 bank |> count(education, y)
 
 ```
+
 ```{r}
 bank |> count(marital, y)
 ```
 
 In absolute numbers married people have the highest subscription numbers, however there were also more married people in the data.
 
-
-## Numerical summaries 
+## Numerical summaries
 
 Numerical summaries (means, medians, sds, etc.) for quantitative variables at levels of categorical variables
 
-### balance by y 
+### balance by y
 
 ```{r}
 bank |> 
@@ -176,7 +176,7 @@ bank |>
 
 ```
 
-### Multiple numeric variables by y 
+### Multiple numeric variables by y
 
 ```{r}
 bank |> 
@@ -204,9 +204,10 @@ bank |>
 
 
 ```
+
 ## Let's create plots now
 
-Simple bar chart - with the outcome 
+Simple bar chart - with the outcome
 
 ```{r}
 ggplot(bank, aes(x = y)) + 
@@ -215,9 +216,10 @@ ggplot(bank, aes(x = y)) +
        x = "Subscribed to a Term Deposit",
        y = "Number of Clients")
 ```
+
 Most clients did not subscribe.The no bar is much taller than yes bar. This matches with the `table(bank$y)` output above (5289 yes).
 
-Now let's plot number of clients by job 
+Now let's plot number of clients by job
 
 ```{r}
 ggplot(bank, aes(x = job)) +
@@ -230,10 +232,10 @@ ggplot(bank, aes(x = job)) +
   )
 
 ```
+
 Blue-collar, management and technician have the tallest bars, so these are the most common jobs. Student and unknown have the shortest bars. From the `count(job)` table,, only 288 clients have unknown job and it is the smallest bar in the above plot.
 
-
-### education vs y 
+### education vs y
 
 ```{r}
 ggplot(bank, aes(x = education, fill = y)) + 
@@ -246,7 +248,7 @@ ggplot(bank, aes(x = education, fill = y)) +
   )
 ```
 
-The yes part of the bar gets bigger as education goes from primary to secondary to teritary, so more educated clients subscribed at a higher rate. 
+The yes part of the bar gets bigger as education goes from primary to secondary to teritary, so more educated clients subscribed at a higher rate.
 
 > per [this page](https://ggplot2-book.org/getting-started.html#sec-qplot-faceting) Faceting creates tables of graphics by splitting the data into subsets and displaying the same graph for each subset.
 
@@ -262,10 +264,10 @@ ggplot(bank, aes(x = age)) +
     y = "Number of Clients"
   )
 ```
+
 Both groups have most clients between 25 and 50 years old. The main difference is after age 60, the no panel drops to almost nothing but the yes panel still has clients after 75, so older clients make up a bigger share of people who subscribed. Since y-axis is different `scales= "free_y"` I am only comparing the x-axis
 
-### box plot of duration by poutcome 
-
+### box plot of duration by poutcome
 
 ```{r}
 ggplot(bank, aes(x = poutcome, y = duration/60, fill = y)) + 
@@ -278,12 +280,12 @@ ggplot(bank, aes(x = poutcome, y = duration/60, fill = y)) +
     fill = "Subscribed"
   )
 ```
-When the client subscribed the median last call duration was longer. 
 
+When the client subscribed the median last call duration was longer.
 
-### Heatmap of subscription rate by education and marital status 
+### Heatmap of subscription rate by education and marital status
 
-This is a heatmap made with geom_tile(), a plot type that was not covered in the class. 
+This is a heatmap made with geom_tile(), a plot type that was not covered in the class.
 
 ```{r}
 bank |>
@@ -299,4 +301,4 @@ bank |>
   )
 ```
 
-Single clients with teritary education had the highest subscription rate and married clients with primary education had the lowest. In almost every education level married clients had the lowest rate of subscription. 
+Single clients with teritary education had the highest subscription rate and married clients with primary education had the lowest. In almost every education level married clients had the lowest rate of subscription.
