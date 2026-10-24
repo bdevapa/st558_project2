@@ -36,7 +36,9 @@ nrow(bank_all)
 
 ```
 
-Because we are combining the data, it is a good idea to check if there are any duplicates. Also Kaggle specifically mentions this \> test.csv: 4521 rows and 18 columns with 10% of the examples (4521), randomly selected from train.csv
+Because we are combining the data, it is a good idea to check if there are any duplicates. Also Kaggle specifically mentions this
+
+\|\> test.csv: 4521 rows and 18 columns with 10% of the examples (4521), randomly selected from train.csv
 
 Let's remove the duplicates
 
