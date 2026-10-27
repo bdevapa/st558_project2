@@ -1,6 +1,4 @@
 library(shiny)
-library(shinyalert)
-library(tidyverse)
 library(dplyr)
 library(readr)
 library(ggplot2)

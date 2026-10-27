@@ -38,7 +38,7 @@ nrow(bank_all)
 
 Because we are combining the data, it is a good idea to check if there are any duplicates. Also Kaggle specifically mentions this
 
-\|\> test.csv: 4521 rows and 18 columns with 10% of the examples (4521), randomly selected from train.csv
+> test.csv: 4521 rows and 18 columns with 10% of the examples (4521), randomly selected from train.csv
 
 Let's remove the duplicates
 
@@ -178,13 +178,15 @@ bank |>
 
 ```
 
+Clients who subscibed have higher balance than client who did not (1804 vs 1304)
+
 ### Multiple numeric variables by y
 
 ```{r}
 bank |> 
   group_by(y) |>
   summarize(
-    n(),
+    n = n(),
     across(c(age, duration, campaign),
     list(mean = mean, median = median, sd = sd)
   ))
@@ -192,13 +194,17 @@ bank |>
 
 ```
 
+In both groups median and mean ages are similar. Median is not too far apart from mean 
+However cal duarion is very different between both the groups. y=yes group has more than twice has much as call duration compared tto y=no group.
+Clients who did not subscribe were contacted slightly higher times than who did not (2.84 vs 2.14)
+
 ### Multiple numeric variables by multiple categorical variables
 
 ```{r}
 bank |> 
   group_by(education, y) |>
   summarize(
-    n(),
+    n = n(),
     across(c(age, duration, campaign),
     list(mean = mean, median = median, sd = sd)),
     .groups = "drop"
@@ -206,6 +212,8 @@ bank |>
 
 
 ```
+y=yes or y=no call duration pattern holds at every education level.
+
 
 ## Let's create plots now
 
@@ -235,7 +243,7 @@ ggplot(bank, aes(x = job)) +
 
 ```
 
-Blue-collar, management and technician have the tallest bars, so these are the most common jobs. Student and unknown have the shortest bars. From the `count(job)` table,, only 288 clients have unknown job and it is the smallest bar in the above plot.
+Blue collar, management and technician have the tallest bars, so these are the most common jobs. Student and unknown have the shortest bars. From the `count(job)` table, only 288 clients have unknown job and it is the smallest bar in the above plot.
 
 ### education vs y
 
@@ -254,7 +262,7 @@ The yes part of the bar gets bigger as education goes from primary to secondary 
 
 > per [this page](https://ggplot2-book.org/getting-started.html#sec-qplot-faceting) Faceting creates tables of graphics by splitting the data into subsets and displaying the same graph for each subset.
 
-### 
+### Age histogram faceted by subscription
 
 ```{r}
 ggplot(bank, aes(x = age)) + 
@@ -276,8 +284,8 @@ ggplot(bank, aes(x = poutcome, y = duration/60, fill = y)) +
   geom_boxplot() + 
   coord_flip() + 
   labs(
-    title = "Call duration by previous compaign outcome and subscription",
-    x = "Previoud compaign outcome",
+    title = "Call duration by previous campaign outcome and subscription",
+    x = "Previous compaign outcome",
     y = "Last Call duration (in mins)",
     fill = "Subscribed"
   )
